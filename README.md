@@ -8,13 +8,13 @@ Based on [Geoffrey Huntley's Ralph pattern](https://ghuntley.com/ralph/).
 
 The script supports multiple sandboxing approaches for security:
 
-| Mode | Flag | Security | Speed | Notes |
-|------|------|----------|-------|-------|
-| Native Sandbox | `--sandbox` | ✅ High | Fast | Default. Uses Claude Code's built-in isolation |
-| Docker Sandbox | `--docker` | ✅ High | Medium | Requires Docker Desktop 4.50+ |
-| Podman | `--podman` | ✅ High | Medium | Rootless containers, works without Docker |
-| Interactive | `--interactive` | ✅ Highest | Slow | Prompts for each action |
-| Dangerous | `--dangerous` | ❌ None | Fast | Full system access, not recommended |
+| Mode           | Flag            | Security   | Speed  | Notes                                          |
+| -------------- | --------------- | ---------- | ------ | ---------------------------------------------- |
+| Native Sandbox | `--sandbox`     | ✅ High    | Fast   | Default. Uses Claude Code's built-in isolation |
+| Docker Sandbox | `--docker`      | ✅ High    | Medium | Requires Docker Desktop 4.50+                  |
+| Podman         | `--podman`      | ✅ High    | Medium | Rootless containers, works without Docker      |
+| Interactive    | `--interactive` | ✅ Highest | Slow   | Prompts for each action                        |
+| Dangerous      | `--dangerous`   | ❌ None    | Fast   | Full system access, not recommended            |
 
 **Recommendation:** Use `--sandbox` (default) or `--docker` for autonomous operation.
 
@@ -107,14 +107,14 @@ Podman runs rootless by default, meaning the container has no elevated privilege
 
 ## Key Files
 
-| File | Purpose |
-|------|---------|
-| `loop.sh` | The bash loop that spawns fresh Claude Code instances |
-| `prompt.md` | Instructions given to each Claude Code instance |
-| `prd.json` | User stories with `passes` status |
-| `prd.json.example` | Example PRD format |
-| `progress.txt` | Append-only learnings for future iterations |
-| `Dockerfile` | Container image for Podman/Docker sandboxing |
+| File               | Purpose                                               |
+| ------------------ | ----------------------------------------------------- |
+| `loop.sh`          | The bash loop that spawns fresh Claude Code instances |
+| `prompt.md`        | Instructions given to each Claude Code instance       |
+| `prd.json`         | User stories with `passes` status                     |
+| `prd.json.example` | Example PRD format                                    |
+| `progress.txt`     | Append-only learnings for future iterations           |
+| `Dockerfile`       | Container image for Podman/Docker sandboxing          |
 
 ## PRD Format
 
@@ -128,10 +128,7 @@ Podman runs rootless by default, meaning the container has no elevated privilege
       "title": "Short description",
       "priority": 1,
       "passes": false,
-      "acceptanceCriteria": [
-        "Criterion 1",
-        "Criterion 2"
-      ],
+      "acceptanceCriteria": ["Criterion 1", "Criterion 2"],
       "technicalNotes": "Optional implementation hints"
     }
   ]
@@ -178,12 +175,12 @@ Copy `prd.json.example` and edit it directly.
 
 Each story should fit in one AI context window. Good sizes:
 
-| ✅ Good | ❌ Too Big |
-|---------|-----------|
-| Add a database migration | Build the dashboard |
-| Create one API endpoint | Add authentication |
-| Build a single component | Refactor the API |
-| Add form validation | Implement search |
+| ✅ Good                    | ❌ Too Big             |
+| -------------------------- | ---------------------- |
+| Add a database migration   | Build the dashboard    |
+| Create one API endpoint    | Add authentication     |
+| Build a single component   | Refactor the API       |
+| Add form validation        | Implement search       |
 | Write tests for one module | Add full test coverage |
 
 If a story feels big, split it.
@@ -203,12 +200,14 @@ Each iteration spawns a **new Claude Code instance** with clean context. The onl
 Each story should be completable in one context window. If a task is too big, Claude runs out of context and produces poor code.
 
 **Good story sizes:**
+
 - Add a database column and migration
-- Add a UI component to an existing page  
+- Add a UI component to an existing page
 - Create an API endpoint with basic CRUD
 - Add a filter dropdown to a list
 
 **Too big (split these):**
+
 - "Build the entire dashboard"
 - "Add authentication"
 - "Refactor the API layer"
@@ -216,6 +215,7 @@ Each story should be completable in one context window. If a task is too big, Cl
 ### Feedback Loops Are Essential
 
 The loop only works if there are quality checks:
+
 - Type checking catches type errors
 - Tests verify behavior
 - Linting catches style issues
@@ -228,12 +228,15 @@ This file persists learnings across iterations:
 
 ```markdown
 ## Codebase Patterns
+
 - Use `sql<number>` template for aggregations
 - Always use `IF NOT EXISTS` for migrations
 - Export types from actions.ts for UI components
 
 ## Session Log
+
 ### Iteration 1 - US-001 - 2025-01-09
+
 - Added migration for users.status column
 - Discovered: migrations require IF NOT EXISTS
 ```
@@ -256,6 +259,7 @@ git log --oneline -10
 ### Why Sandboxing Matters
 
 When running autonomously, Claude Code can:
+
 - Execute arbitrary bash commands
 - Read/write files anywhere it has access
 - Install packages
@@ -266,11 +270,13 @@ Sandboxing limits the blast radius if something goes wrong.
 ### Native Sandbox (`--sandbox`)
 
 Claude Code's built-in sandbox uses OS-level primitives:
+
 - Filesystem isolation (only write to workspace)
 - Network allowlisting
 - Process containment
 
 Configure in `~/.claude/settings.json`:
+
 ```json
 {
   "sandbox": {
@@ -286,12 +292,14 @@ Configure in `~/.claude/settings.json`:
 ### Container Sandbox (`--docker` or `--podman`)
 
 Container isolation provides:
+
 - Separate filesystem namespace
 - Network isolation (configurable)
 - Resource limits
 - No access to host processes
 
 The container only sees:
+
 - Your project directory (mounted at `/workspace`)
 - Claude credentials (mounted read-only)
 
@@ -302,18 +310,21 @@ The container only sees:
 Edit `prompt.md` to match your stack:
 
 **Rails:**
+
 ```bash
 bundle exec rubocop
 bundle exec rspec
 ```
 
 **Django:**
+
 ```bash
 python -m mypy .
 python -m pytest
 ```
 
 **Go:**
+
 ```bash
 go build ./...
 go test ./...
@@ -325,6 +336,7 @@ Add project-specific rules to `prompt.md`:
 
 ```markdown
 ## Project Conventions
+
 - Use snake_case for Ruby, camelCase for JavaScript
 - All API endpoints return JSON with { data, error } shape
 - UI components go in app/components/
@@ -333,17 +345,20 @@ Add project-specific rules to `prompt.md`:
 ## Troubleshooting
 
 **Claude Code not found:**
+
 ```
 Install Claude Code: https://docs.anthropic.com/en/docs/claude-code
 ```
 
 **jq not found:**
+
 ```bash
 brew install jq  # macOS
 apt install jq   # Linux
 ```
 
 **Stories not completing:**
+
 - Check if stories are too large (split them)
 - Review progress.txt for patterns of failure
 - Run manually to debug: `cat prompt.md | claude`
@@ -351,4 +366,3 @@ apt install jq   # Linux
 ## License
 
 MIT
-# ralph
